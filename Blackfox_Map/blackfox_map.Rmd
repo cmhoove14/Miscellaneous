@@ -55,9 +55,13 @@ murf <- get_map(location = c(lon = bf_lon, lat = bf_lat),
           maptype = "roadmap", crop = FALSE,
           zoom = 10)
 # plot map
+#png(filename="Blackfox_map.png", width=1280, height=1280)
+
 ggmap(murf) +
   theme(legend.title = element_blank()) +
   geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot, color = "darkblue", fill = "blue", alpha = 0.25) +
   geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
+
+#dev.off()
 ```
 
