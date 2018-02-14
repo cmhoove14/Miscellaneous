@@ -1,0 +1,63 @@
+---
+title: "Blackfox_Map"
+author: "Chris Hoover"
+date: "February 14, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r dependencies, include = FALSE}
+library(ggmap)
+library(ggimage)
+library(rgdal)
+library(rgeos)
+library(dplyr)
+library(maptools)
+library(tmap)
+library(sp)
+library(RgoogleMaps)
+```
+
+
+```{r blackfox_coords, include=FALSE}
+bf_lat <- 35.794737
+bf_lon <- -86.358253
+
+bf_df <- data.frame(lat = bf_lat, 
+                    lon = bf_lon,
+                    label = "Black Fox\nVeterinary\n Hospital",
+                    image = sample("BlackFox_Logo.png"))
+
+utm16n <- "+proj=utm +zone=16 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+bf_prj <- project(cbind(bf_lon, bf_lat), utm16n)
+
+bf_pt<-SpatialPoints(coords = data.frame(x = bf_prj[1], y = bf_prj[2]),
+                     proj4string = CRS(utm16n))
+
+bf_buffer <- gBuffer(bf_pt, width = 15*1609.34) #15 miles to meters 
+
+bf_buffer_df <- fortify(bf_buffer)
+#Test to make sure buffer is around desired point
+#  plot(bf_buffer_df$long, bf_buffer_df$lat, type = "l")
+#    points(x = bf_prj[1], y = bf_prj[2], pch = 17, col = 2)
+
+bf_buffer_wgs <-spTransform(bf_buffer, CRS("+proj=longlat +datum=WGS84"))
+bf_buffer_plot <- fortify(bf_buffer_wgs)
+```
+
+```{r, echo=FALSE}
+murf <- get_map(location = c(lon = bf_lon, lat = bf_lat),
+          source = "google",
+          maptype = "roadmap", crop = FALSE,
+          zoom = 10)
+# plot map
+ggmap(murf) +
+  theme(legend.title = element_blank()) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot, color = "darkblue", fill = "blue", alpha = 0.25) +
+  geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
+```
+
