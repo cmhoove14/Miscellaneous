@@ -65,6 +65,10 @@ murf <- get_map(location = c(lon = bf_lon, lat = bf_lat),
           maptype = "roadmap", crop = FALSE,
           zoom = 10)
 
+murf2 <- get_map(location = c(lon = bf_lon, lat = bf_lat),
+          source = "google",
+          maptype = "roadmap", crop = FALSE,
+          zoom = 11)
 # plot 15 mile buffer map
 png(filename="Blackfox_map_15mile.png", width=1280, height=1280)
 
@@ -88,7 +92,7 @@ dev.off()
 # plot 7 mile buffer map
 png(filename="Blackfox_map_7mile.png", width=1280, height=1280)
 
-ggmap(murf) +
+ggmap(murf2) +
   theme(legend.title = element_blank()) +
   geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot7, color = "darkblue", fill = "blue", alpha = 0.25) +
   geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
