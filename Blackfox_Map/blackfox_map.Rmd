@@ -38,15 +38,25 @@ bf_prj <- project(cbind(bf_lon, bf_lat), utm16n)
 bf_pt<-SpatialPoints(coords = data.frame(x = bf_prj[1], y = bf_prj[2]),
                      proj4string = CRS(utm16n))
 
-bf_buffer <- gBuffer(bf_pt, width = 15*1609.34) #15 miles to meters 
+bf_buffer15 <- gBuffer(bf_pt, width = 15*1609.34) #15 miles to meters 
+bf_buffer10 <- gBuffer(bf_pt, width = 10*1609.34) #10 miles to meters 
+bf_buffer7 <- gBuffer(bf_pt, width = 7*1609.34)   #7 miles to meters 
 
-bf_buffer_df <- fortify(bf_buffer)
+bf_buffer_df15 <- fortify(bf_buffer15)
+bf_buffer_df10 <- fortify(bf_buffer10)
+bf_buffer_df7 <- fortify(bf_buffer7)
+
 #Test to make sure buffer is around desired point
 #  plot(bf_buffer_df$long, bf_buffer_df$lat, type = "l")
 #    points(x = bf_prj[1], y = bf_prj[2], pch = 17, col = 2)
 
-bf_buffer_wgs <-spTransform(bf_buffer, CRS("+proj=longlat +datum=WGS84"))
-bf_buffer_plot <- fortify(bf_buffer_wgs)
+bf_buffer_wgs15 <-spTransform(bf_buffer15, CRS("+proj=longlat +datum=WGS84"))
+bf_buffer_wgs10 <-spTransform(bf_buffer10, CRS("+proj=longlat +datum=WGS84"))
+bf_buffer_wgs7 <-spTransform(bf_buffer7, CRS("+proj=longlat +datum=WGS84"))
+
+bf_buffer_plot15 <- fortify(bf_buffer_wgs15)
+bf_buffer_plot10 <- fortify(bf_buffer_wgs10)
+bf_buffer_plot7 <- fortify(bf_buffer_wgs7)
 ```
 
 ```{r, echo=FALSE}
@@ -54,14 +64,48 @@ murf <- get_map(location = c(lon = bf_lon, lat = bf_lat),
           source = "google",
           maptype = "roadmap", crop = FALSE,
           zoom = 10)
-# plot map
-#png(filename="Blackfox_map.png", width=1280, height=1280)
+
+# plot 15 mile buffer map
+png(filename="Blackfox_map_15mile.png", width=1280, height=1280)
 
 ggmap(murf) +
   theme(legend.title = element_blank()) +
-  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot, color = "darkblue", fill = "blue", alpha = 0.25) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot15, color = "goldenrod", fill = "yellow", alpha = 0.25) +
   geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
 
-#dev.off()
+dev.off()
+
+# plot 10 mile buffer map
+png(filename="Blackfox_map_10mile.png", width=1280, height=1280)
+
+ggmap(murf) +
+  theme(legend.title = element_blank()) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot10, color = "darkred", fill = "red", alpha = 0.25) +
+  geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
+
+dev.off()
+
+# plot 7 mile buffer map
+png(filename="Blackfox_map_7mile.png", width=1280, height=1280)
+
+ggmap(murf) +
+  theme(legend.title = element_blank()) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot7, color = "darkblue", fill = "blue", alpha = 0.25) +
+  geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
+
+dev.off()
+
+# plot 7all three distance buffers 
+png(filename="Blackfox_map_3buffers.png", width=1280, height=1280)
+
+ggmap(murf) +
+  theme(legend.title = element_blank()) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot15, color = "goldenrod", fill = "yellow", alpha = 0.25) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot10, color = "darkred", fill = "red", alpha = 0.25) +
+  geom_polygon(aes(x = long, y = lat), data = bf_buffer_plot7, color = "darkblue", fill = "blue", alpha = 0.25) +
+  geom_image(data = bf_df, aes(x = lon, y = lat, fill = label, image = image), size = 0.05)
+
+dev.off()
+
 ```
 
